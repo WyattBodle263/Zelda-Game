@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import java.util.concurrent.CountDownLatch;
 import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
@@ -69,24 +70,48 @@ public class Zelda {
                 backgroundKI.addElement(temp);
             }
 
-            for (int i = 0; i < backgroundKI.size(); i++) {
-                for (int j = 0; j < backgroundKI.elementAt(i).size(); j++) {
-                    if ((j == 5 && i == 10) || (j == 5 && i == 11) || (j == 6 && i == 10) || (j == 6 && i == 11) || (j == 7 && i == 10) || (j == 7 && i == 11) || (j == 8 && i == 9) || (j == 8 && i == 10)) //TODO: Swap j and i
-                    {
-                        String filename = "KI";
-                        if (j < 10) {
-                            filename = filename + "0";
+            // Define a CountDownLatch with initial count equal to the number of threads you want to wait for
+            CountDownLatch latch = new CountDownLatch(1);
+
+// Start the loop in a separate thread
+            Thread loopThread = new Thread(() -> {
+                for (int i = 0; i < backgroundKI.size(); i++) {
+                    for (int j = 0; j < backgroundKI.elementAt(i).size(); j++) {
+                        if ((j == 5 && i == 10) || (j == 5 && i == 11) || (j == 6 && i == 10) || (j == 6 && i == 11) || (j == 7 && i == 10) || (j == 7 && i == 11) || (j == 8 && i == 9) || (j == 8 && i == 10)) //TODO: Swap j and i
+                        {
+                            String filename = "KI";
+                            if (j < 10) {
+                                filename = filename + "0";
+                            }
+                            filename = filename + j;
+                            if (i < 10) {
+                                filename = filename + "0";
+                            }
+                            filename = filename + i + ".png";
+                            System.out.println( filename );
+                            try {
+                                BufferedImage image = ImageIO.read(new File(filename));
+                                backgroundKI.elementAt(i).set(j, image);
+                            } catch (IOException e) {
+                                System.err.println("Error reading image file: " + e.getMessage());
+                                e.printStackTrace();
+                            }
                         }
-                        filename = filename + j;
-                        if (i < 10) {
-                            filename = filename + "0";
-                        }
-                        filename = filename + i + ".png";
-                        //System.out.println( filename );
-                        backgroundKI.elementAt(i).set(j, ImageIO.read(new File(filename)));
                     }
                 }
+                // After the loop finishes, count down the latch
+                latch.countDown();
+            });
+// Start the loop thread
+            loopThread.start();
+
+            try {
+                // Wait for the loop thread to finish
+                latch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
+
             wallsKI = new Vector<Vector<Vector<ImageObject>>>();
             // setting up the Koholint Island walls
             System.out.println("wallsKI size before setup: " + wallsKI.size());

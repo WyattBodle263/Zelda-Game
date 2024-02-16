@@ -216,13 +216,17 @@ public class Zelda {
     private static class Animate implements Runnable {
         public void run() {
             while (endgame == false) {
-                backgroundDraw();
+                try {
+                    backgroundDraw();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 enemiesDraw();
                 playerDraw();
                 healthDraw();
 
                 try {
-                    Thread.sleep(32);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                 }
             }
@@ -577,7 +581,7 @@ public class Zelda {
         return new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
     }
 
-    private static void backgroundDraw() {
+    private static void backgroundDraw() throws IOException {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
         if (backgroundState.substring(0, 2).equals("KI")) {
@@ -597,7 +601,27 @@ public class Zelda {
                 }
             }
         }
+
+        //Checks if money hit
+        if ((p1.getX() >= 240 && p1.getX() <= 270) && (p1.getY() >= 180 && p1.getY() <= 210) ) {
+            // Coordinates of p1 are within 5 units of (255, 195)
+            moneyHit = true;
+        }
+        g2D.drawImage(ImageIO.read(new File("sign.png")), 250, 70, null);
+//        System.out.println(moneyHit);
+        if(moneyHit){
+            g2D.drawString("Money: 1", 35, 270);
+        }else{
+            g2D.drawString("Money: 3", 35, 320);
+            g2D.drawImage(ImageIO.read(new File("money.png")), 140, 230, null);
+            g2D.drawImage(ImageIO.read(new File("money.png")), 227, 95, null);
+
+
+        }
+
     }
+
+    public static boolean moneyHit = false;
     private static void playerDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
@@ -714,23 +738,34 @@ public class Zelda {
         }
 
         public void actionPerformed(ActionEvent e) {
+//            System.out.println(p1.x + ", " + p1.y);
             if (action.equals("UP")) {
-                p1.y = p1.getY() - 10;
+                if(p1.y >= 50){
+                    p1.y = p1.getY() - 10;
+                }
                 myPanel.updateUI();
                 upPressed = true;
                 lastPressed = 90.0;
             } else if (action.equals("DOWN")) {
-                p1.y = p1.getY() + 10;
+                if(p1.x > 135 && p1.x < 145 && p1.y <= 260) {
+                    p1.y = p1.getY() + 10;
+                }else if(p1.y <= 230){
+                    p1.y = p1.getY() + 10;
+                }
                 myPanel.updateUI();
                 downPressed = true;
                 lastPressed = 270.0;
             } else if (action.equals("LEFT")) {
-                p1.x = p1.getX() - 10;
+                if(p1.x > 30){
+                    p1.x = p1.getX() - 10;
+                }
                 myPanel.updateUI();
                 leftPressed = true;
                 lastPressed = 180.0;
             } else if (action.equals("RIGHT")) {
-                p1.x = p1.getX() + 10;
+                if(p1.x < 250){
+                    p1.x = p1.getX() + 10;
+                }
                 myPanel.updateUI();
                 rightPressed = true;
                 lastPressed = 0.0;

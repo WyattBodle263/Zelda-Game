@@ -31,7 +31,6 @@ public class Zelda {
     }
 
     public static void setup() {
-        System.out.println("SETTING UP");
         appFrame = new JFrame("The Legend of Zelda: Link's Awakening");
         XOFFSET = 0;
         YOFFSET = 40;
@@ -74,7 +73,6 @@ public class Zelda {
             CountDownLatch latch = new CountDownLatch(1);
 
 // Start the loop in a separate thread
-            Thread loopThread = new Thread(() -> {
                 for (int i = 0; i < backgroundKI.size(); i++) {
                     for (int j = 0; j < backgroundKI.elementAt(i).size(); j++) {
                         if ((j == 5 && i == 10) || (j == 5 && i == 11) || (j == 6 && i == 10) || (j == 6 && i == 11) || (j == 7 && i == 10) || (j == 7 && i == 11) || (j == 8 && i == 9) || (j == 8 && i == 10)) //TODO: Swap j and i
@@ -88,7 +86,6 @@ public class Zelda {
                                 filename = filename + "0";
                             }
                             filename = filename + i + ".png";
-                            System.out.println( filename );
                             try {
                                 BufferedImage image = ImageIO.read(new File(filename));
                                 backgroundKI.elementAt(i).set(j, image);
@@ -99,22 +96,9 @@ public class Zelda {
                         }
                     }
                 }
-                // After the loop finishes, count down the latch
-                latch.countDown();
-            });
-// Start the loop thread
-            loopThread.start();
-
-            try {
-                // Wait for the loop thread to finish
-                latch.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
 
             wallsKI = new Vector<Vector<Vector<ImageObject>>>();
             // setting up the Koholint Island walls
-            System.out.println("wallsKI size before setup: " + wallsKI.size());
             for (int i = 0; i < ydimKI; i++) {
                 Vector<Vector<ImageObject>> temp = new Vector<Vector<ImageObject>>();
                 for (int j = 0; j < xdimKI; j++) {
@@ -123,12 +107,10 @@ public class Zelda {
                 }
                 wallsKI.addElement(temp);
             }
-            System.out.println("wallsKI size after setup: " + wallsKI.size());
 
 // Print the indices where walls are being set
             for (int i = 0; i < wallsKI.size(); i++) {
                 for (int j = 0; j < wallsKI.elementAt(i).size(); j++) {
-                    System.out.println("Setting wall at index (" + i + ", " + j + ")");
                     if (i == 5 && j == 10) {
                         wallsKI.elementAt(i).elementAt(j).addElement(new ImageObject(270, 35, 68, 70, 0.0));
                         wallsKI.elementAt(i).elementAt(j).addElement(new ImageObject(100, 100, 200, 35, 0.0));
@@ -164,9 +146,10 @@ public class Zelda {
                 backgroundTC.addElement(temp);
             }
 
+
             for (int i = 0; i < backgroundTC.size(); i++) {
                 for (int j = 0; j < backgroundTC.elementAt(i).size(); j++) {
-                    if ((j == 0 && i == 2) || (j == 0 && i == 3) || (j == 0 && i == 4) || (j == 1 && i == 1) || (j == 1 && i == 3) || (j == 1 && i == 5) || (j == 2 && i == 1) || (j == 2 && i == 2) || (j == 2 && i == 3) || (j == 2 && i == 4) || (j == 2 && i == 5) || (j == 2 && i == 6) || (j == 3 && i == 1) || (j == 3 && i == 2 || (j == 3 && i == 3) || (j == 3 && i == 4) || j == 3 && i == 5) || (j == 4 && i == 2) || (j == 4 && i == 3) || (j == 4 && i == 4) || (j == 5 && i == 2) || (j == 5 || i == 3) || (j == 6 && i == 0) || (j == 6 && i == 1) || (j == 6 && i == 2) || (j == 6 && i == 3)) {
+                    if ((j == 5 && i == 10) || (j == 5 && i == 11) || (j == 6 && i == 10) || (j == 6 && i == 11) || (j == 7 && i == 10) || (j == 7 && i == 11) || (j == 8 && i == 9) || (j == 8 && i == 10)) {
                         String filename = "TC";
                         if (j < 10) {
                             filename = filename + "0";
@@ -176,7 +159,6 @@ public class Zelda {
                             filename = filename + "0";
                         }
                         filename = filename + i + ".png";
-                        //System.out.println(filename );
                         backgroundTC.elementAt(i).set(j, ImageIO.read(new File(filename)));
                     }
                 }
@@ -197,7 +179,7 @@ public class Zelda {
             BufferedImage player = ImageIO.read(new File("link00.png"));
 
             // Link's images
-            for (int i = 0; i < 72; i++) {
+            for (int i = 0; i < 12; i++) { //Change to 72 if error
                 if (i < 10) {
                     String filename = "link0" + i + ".png";
                     link.addElement(ImageIO.read(new File(filename)));
@@ -362,13 +344,16 @@ public class Zelda {
         }
 
         public void run() {
-            while (endgame == false)
+            System.out.println("Running Player Mover");
+            while (!endgame)
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
                 }
+
             if (upPressed || downPressed || leftPressed || rightPressed) {
                 p1velocity = velocitystep;
+                System.out.println(p1velocity);
                 if (upPressed) {
                     if (leftPressed) {
                         p1.setInternalAngle(fivequartersPi);
@@ -619,30 +604,30 @@ public class Zelda {
         if (upPressed || downPressed || leftPressed || rightPressed) {
             if (upPressed) {
                 if (p1.getCurrentFrame() == 0) {
-                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(4), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(6), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() == 1) {
-                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(5), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(7), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
             } else if (downPressed) {
-                if (p1.getCurrentFrame() == 0) {
-                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(2), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
-                } else if (p1.getCurrentFrame() == 1) {
-                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(3), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
-                }
-                p1.updateCurrentFrame();
-            } else if (leftPressed) {
                 if (p1.getCurrentFrame() == 0) {
                     g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(0), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() == 1) {
                     g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(1), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
+            } else if (leftPressed) {
+                if (p1.getCurrentFrame() == 0) {
+                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(3), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                } else if (p1.getCurrentFrame() == 1) {
+                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(4), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                }
+                p1.updateCurrentFrame();
             } else if (rightPressed) {
                 if (p1.getCurrentFrame() == 0) {
-                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(6), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(10), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() == 1) {
-                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(7), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(p1).filter(link.elementAt(11), null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
             }
@@ -730,15 +715,23 @@ public class Zelda {
 
         public void actionPerformed(ActionEvent e) {
             if (action.equals("UP")) {
+                p1.y = p1.getY() - 10;
+                myPanel.updateUI();
                 upPressed = true;
                 lastPressed = 90.0;
             } else if (action.equals("DOWN")) {
+                p1.y = p1.getY() + 10;
+                myPanel.updateUI();
                 downPressed = true;
                 lastPressed = 270.0;
             } else if (action.equals("LEFT")) {
+                p1.x = p1.getX() - 10;
+                myPanel.updateUI();
                 leftPressed = true;
                 lastPressed = 180.0;
             } else if (action.equals("RIGHT")) {
+                p1.x = p1.getX() + 10;
+                myPanel.updateUI();
                 rightPressed = true;
                 lastPressed = 0.0;
             } else if (action.equals("A")) {
@@ -747,7 +740,6 @@ public class Zelda {
                 xPressed = true;
             }
         }
-
         private String action;
     }
 
@@ -1180,12 +1172,11 @@ public class Zelda {
         myPanel.getInputMap(IFW).put(KeyStroke.getKeyStroke("released " + input), input + "_released");
         myPanel.getActionMap().put(input + "_released", new KeyReleased(input));
     }
-
+    public static JPanel myPanel = new JPanel();
     public static void main(String[] args) {
         setup();
         appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         appFrame.setSize(WINWIDTH + 1, WINHEIGHT + 85);
-        JPanel myPanel = new JPanel();
 
 //        String[] levels = {"One", "Two", "Three", "Four", "Five", "Six", " Seven", "Eight", "Nine", "Ten" };
 
